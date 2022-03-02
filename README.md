@@ -348,6 +348,138 @@ public:
 };
 ```
 
+## 8) 921. Minimum Add to Make Parentheses Valid
+
+```cpp
+class Solution {
+public:
+    int minAddToMakeValid(string s) {
+        int n = s.size();
+        
+        int op = 0, cl = 0, ans = 0;
+        
+        for(int i = 0; i < n; i++)
+        {
+            if(s[i] == '(')
+            {
+                op++;
+            }
+            
+            else if(s[i] == ')')
+            {
+                cl++;
+            }
+            
+            if(cl > op)
+            {
+                op++;
+                ans++;
+            }
+        }
+        
+        op = 0, cl = 0;
+        
+        for(int i = n - 1; i >= 0; i--)
+        {
+            if(s[i] == '(')
+            {
+                op++;
+            }
+            
+            else if(s[i] == ')')
+            {
+                cl++;
+            }
+            
+            if(op > cl)
+            {
+                cl++;
+                ans++;
+            }
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 9) 408. Valid Word Abbreviation
+
+```cpp
+class Solution {
+public:
+    int get_length(string& A, int& pos)
+    {
+        int n = A.size();
+        
+        if(pos >= n || A[pos] == '0')
+        {
+            return -1;
+        }
+        
+        int ans = 0;
+        
+        while(pos < n && isdigit(A[pos]))
+        {
+            ans *= 10;
+            ans += A[pos] - '0';
+            pos++;
+        }
+        
+        return ans;
+    }
+    
+    bool validWordAbbreviation(string W, string A) {
+        int wn = W.size();
+        int an = A.size();
+        
+        int i = 0, j = 0;
+        
+        while(i < wn && j < an)
+        {
+            if(isdigit(A[j]))
+            {
+                int length = get_length(A, j);
+                
+                if(length == -1)
+                {
+                    return false;
+                }
+                
+                i += length;
+            }
+            
+            else
+            {
+                if(W[i] != A[j])
+                {
+                    return false;
+                }
+                
+                i++;
+                j++;
+            }
+        }
+        
+        return i == wn && j == an;
+    }
+};
+```
+
+## 10) 339. Nested List Weight Sum
+
+### DFS
+
+```cpp
+
+```
+
+### BFS
+
+```cpp
+
+```
+
 ## ) 2. Add Two Numbers
 
 1. We will build the answer node by node.
