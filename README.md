@@ -670,6 +670,226 @@ public:
 };
 ```
 
+## 13) 973. K Closest Points to Origin
+
+### Max Heap
+
+```cpp
+class Solution {
+public:
+    int dis(vector<int>& p)
+    {
+        return p[0] * p[0] + p[1] * p[1];
+    }
+    
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+        int n = points.size();
+        
+        vector<vector<int>> ans;
+        
+        priority_queue<pair<int, int>> pq;
+        
+        for(int i = 0; i < n; i++)
+        {
+            pq.push({dis(points[i]), i});
+            
+            if(pq.size() > k)
+            {
+                pq.pop();
+            }
+        }
+        
+        while(!pq.empty())
+        {
+            ans.push_back(points[pq.top().second]);
+            pq.pop();
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 14) 227. Basic Calculator II
+
+```cpp
+
+```
+
+## 15) 215. Kth Largest Element in an Array
+
+```cpp
+#define rand(a,b) a + rand() % (b - a + 1)
+class Solution {
+public:
+    int randomized_select(vector<int>& arr, int l, int r, int k)
+    {    
+        if(l == r)
+        {
+            return arr[l];
+        }
+        
+        int rpind = randomized_partition(arr, l, r);
+        int rprank = rpind - l + 1;
+        
+        if(k == rprank)
+        {
+            return arr[rpind];
+            
+        }
+        
+        else if(k < rprank)
+        {
+            return randomized_select(arr, l, rpind - 1, k);
+        }
+        
+        return randomized_select(arr, rpind + 1, r, k - rprank);
+    }
+    
+    int partition(vector<int>& arr, int l, int r)
+    {
+        for(int i = l; i < r; i++)
+        {
+            if(arr[i] >= arr[r])
+            {
+                swap(arr[l++], arr[i]);
+            }
+        }
+        swap(arr[l], arr[r]);
+        return l;
+    }
+    
+    int randomized_partition(vector<int>& arr, int l, int r)
+    {
+        int pivot = rand(l, r);
+        swap(arr[pivot], arr[r]);
+        return partition(arr, l, r);
+    }
+    
+    int findKthLargest(vector<int>& nums, int k) {
+        return randomized_select(nums, 0, nums.size() - 1, k);
+    }
+};
+```
+
+## 16) 50. Pow(x, n)
+
+### Recursive
+
+```cpp
+class Solution {
+public:
+    double myPow(double x, int n) {
+        if(n == 0)
+        {
+            return 1.0;
+        }
+        
+        if(n == 1)
+        {
+            return x;
+        }
+        
+        if(n == -1)
+        {
+            return 1.0 / x;
+        }
+
+        if(n % 2)
+        {
+            return x * myPow(x, n - 1);
+        }
+        
+        double tmp = myPow(x, n / 2);
+        return tmp * tmp;
+    }
+};
+```
+
+### Iterative
+
+```cpp
+class Solution {
+public:
+    double myPow(double x, int N) {
+        long long n = N;
+        
+        if(n < 0)
+        {
+            x = 1.0 / x;
+            n = -n;
+        }
+        
+        double ans = 1;
+        
+        while(n > 0)
+        {
+            if(n & 1)
+            {
+                ans = ans * x;
+            }
+            
+            x = x * x;
+            n = n >> 1;
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 17) 987. Vertical Order Traversal of a Binary Tree
+
+```cpp
+
+```
+
+## 18) 199. Binary Tree Right Side View
+
+```cpp
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        if(!root)
+        {
+            return {};
+        }
+        
+        queue<TreeNode*> q;
+        q.push(root);
+        vector<int> rv;
+        
+        while(!q.empty())
+        {
+            int n = q.size();
+            while(n--)
+            {
+                TreeNode* front = q.front();
+                q.pop();
+                
+                if(n == 0)
+                {
+                    rv.push_back(front->val);
+                }
+                
+                if(front->left)
+                {
+                    q.push(front->left);
+                }
+                
+                if(front->right)
+                {
+                    q.push(front->right);
+                }
+                
+            }
+        }
+        
+        return rv;
+    }
+};
+```
+
 ## ) 2. Add Two Numbers
 
 1. We will build the answer node by node.
