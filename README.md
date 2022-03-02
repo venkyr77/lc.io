@@ -110,6 +110,8 @@ public:
 
 ## 3) 314. Binary Tree Vertical Order Traversal
 
+### DFS
+
 ```cpp
 class Solution {
 public:
@@ -153,9 +155,11 @@ public:
         return ans;
     }
 };
+```
 
+### BFS
 
-
+```cpp
 class Solution {
 public:
     vector<vector<int>> verticalOrder(TreeNode* root) {
@@ -471,13 +475,199 @@ public:
 ### DFS
 
 ```cpp
-
+class Solution {
+public:
+    void dfs(NestedInteger& u, int& ans, int level)
+    {
+        if(u.isInteger())
+        {
+            ans += u.getInteger() * level;
+        }
+        
+        else
+        {
+            for(NestedInteger v : u.getList())
+            {
+                dfs(v, ans, level + 1);
+            }
+        }
+    }
+    
+    int depthSum(vector<NestedInteger>& nestedList) {
+        int ans = 0;
+        
+        for(NestedInteger n : nestedList)
+        {
+            dfs(n, ans, 1);
+        }
+        
+        return ans;
+    }
+};
 ```
 
 ### BFS
 
 ```cpp
+class Solution {
+public:
+    int depthSum(vector<NestedInteger>& nestedList) {
+        int ans = 0;
+        
+        queue<pair<NestedInteger&, int>> q;
+        
+        for(NestedInteger& n : nestedList)
+        {
+            q.push({n, 1});
+        }
+        
+        while(!q.empty())
+        {
+            NestedInteger& u = q.front().first;
+            int level = q.front().second;
+            q.pop();
+            
+            if(u.isInteger())
+            {
+                ans += u.getInteger() * level;
+            }
+            
+            else
+            {
+                for(NestedInteger& v : u.getList())
+                {
+                    q.push({v, level + 1});
+                }
+            }
+        }
+        
+        return ans;
+    }
+};
+```
 
+## 11) 71. Simplify Path
+
+```cpp
+class Solution {
+public:
+    string simplifyPath(string path) {
+        vector<string> levels;
+        
+        string tmp = "";
+        
+        for(char c: path)
+        {
+            if(c == '/')
+            {
+                if(tmp != "")
+                {
+                    levels.push_back(tmp);
+                }
+                
+                tmp = "";
+            }
+            
+            else
+            {
+                tmp += c;
+            }
+        }
+        
+        if(tmp != "")
+        {
+            levels.push_back(tmp);
+        }
+        
+        vector<string> st;
+        
+        for(string s : levels)
+        {
+            if(s == "..")
+            {
+                if(!st.empty())
+                {
+                    st.pop_back();
+                }
+            }
+            
+            else if(s != ".")
+            {
+                st.push_back(s);
+            }
+        }
+        
+        tmp = "";
+        
+        for(string s : st)
+        {
+            tmp += "/" + s;
+        }
+        
+        return tmp == "" ? "/" : tmp;
+    }
+};
+```
+
+## 12) 426. Convert Binary Search Tree to Sorted Doubly Linked List
+
+### Iterative inorder using stack
+
+```cpp
+class Solution {
+public:
+    void inorder(stack<Node*>& st, Node* root)
+    {
+        if(!root)
+        {
+            return;
+        }
+        
+        Node* tmp = root;
+        
+        while(tmp)
+        {
+            st.push(tmp);
+            tmp = tmp->left;
+        }
+    }
+    
+    Node* treeToDoublyList(Node* root) {
+        if(!root)
+        {
+            return NULL;
+        }
+        
+        stack<Node*> st;
+        inorder(st, root);
+        
+        Node* dummy = new Node();
+        Node* curr = dummy;
+        
+        Node* t;
+        
+        while(!st.empty())
+        {
+            t = st.top();
+            st.pop();
+            
+            curr->right = t;
+            t->left = curr;
+            
+            if(t->right)
+            {
+                inorder(st, t->right);
+            }
+            
+            curr = curr->right;
+        }
+        
+        dummy->right->left = t;
+        t->right = dummy->right;
+        
+        return dummy->right;
+    }
+};
 ```
 
 ## ) 2. Add Two Numbers
