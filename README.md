@@ -153,6 +153,60 @@ public:
         return ans;
     }
 };
+
+
+
+class Solution {
+public:
+    vector<vector<int>> verticalOrder(TreeNode* root) {
+        if(!root)
+        {
+            return {};
+        }
+        
+        vector<vector<int>> ans;
+        
+        unordered_map<int, vector<int>> col_to_row_map;
+        
+        int min_col = INT_MAX, max_col = INT_MIN;
+        
+        queue<pair<TreeNode*, vector<int>>> q;
+        
+        q.push({root, {0, 0}});
+        
+        while(!q.empty())
+        {
+            auto f = q.front();
+            q.pop();
+            
+            TreeNode* node = f.first;
+            int r = f.second[0];
+            int c = f.second[1];
+            
+            col_to_row_map[c].push_back(node->val);
+            
+            min_col = min(min_col, c);
+            max_col = max(max_col, c);
+            
+            if(node->left)
+            {
+                q.push({node->left, {r + 1, c - 1}});
+            }
+            
+            if(node->right)
+            {
+                q.push({node->right, {r + 1, c + 1}});
+            }
+        }
+        
+        for(int col = min_col; col <= max_col; col++)
+        {
+            ans.push_back(col_to_row_map[col]);
+        }
+        
+        return ans;
+    }
+};
 ```
 
 ## 4) 1762. Buildings With an Ocean View
@@ -260,6 +314,36 @@ public:
         int ans = 0;
         dfs(root, low, high, ans);
         return ans;
+    }
+};
+```
+
+## 7) 528. Random Pick with Weight
+
+```cpp
+class Solution {
+private:
+    vector<int> psum;
+public:
+    Solution(vector<int>& w) {
+        for(int i : w)
+        {
+            if(psum.empty())
+            {
+                psum.push_back(i);
+            }
+            
+            else
+            {
+                psum.push_back(psum.back() + i);
+            }
+        }
+    }
+    
+    int pickIndex() {
+        float r = (float)(rand()) / (float)(RAND_MAX);
+        float pos = r * psum.back();
+        return upper_bound(psum.begin(), psum.end(), pos) - psum.begin();
     }
 };
 ```
