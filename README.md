@@ -1,5 +1,9 @@
 # Fb Prep
 
+## Iterative O(1) inorder -> Morris Order
+
+
+
 ## 1) 1249. Minimum Remove to Make Valid Parentheses
 
 ```cpp
@@ -886,6 +890,170 @@ public:
         }
         
         return rv;
+    }
+};
+```
+
+## 19) 31. Next Permutation
+
+```cpp
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int n = nums.size();
+        
+        int r = n - 1, ind = -1;
+        
+        for(int i = n - 1; i >= 1; i--)
+        {
+            if(nums[i] > nums[i - 1])
+            {
+                ind = i;
+                break;
+            }
+        }
+        
+        if(ind == -1)
+        {
+            reverse(nums.begin(), nums.end());
+            return;
+        }
+        
+        for(int i = n - 1; i >= ind; i--)
+        {
+            if(nums[i] > nums[ind - 1])
+            {
+                swap(nums[i], nums[ind - 1]);
+                break;
+            }
+        }
+        
+        reverse(nums.begin() + ind, nums.end());
+    }
+};
+```
+
+## 20) 827. Making A Large Island
+
+```cpp
+class Solution {
+public:
+    void make_set(int v, vector<int>& parent, vector<int>& size)
+    {
+        parent[v] = v;
+        size[v] = 1;
+    }
+    
+    int find_set(int v, vector<int>& parent)
+    {
+        if(parent[v] == v)    
+        {
+            return v;
+        }
+        int rep = find_set(parent[v], parent);
+        parent[v] = rep;
+        return rep;
+    }
+    
+    void union_sets(int a, int b, vector<int>& parent, vector<int>& size)
+    {
+        a = find_set(a, parent);
+        b = find_set(b, parent);
+        if(a != b)
+        {
+            if(size[a] < size[b])
+            {
+                swap(a, b);
+            }
+            parent[b] = a;
+            size[a] += size[b];
+        }
+    }
+    
+    bool isinside(int m, int n, int i, int j)
+    {
+        return (i >= 0 && i < m && j >= 0 && j < n);
+    }
+    
+    int largestIsland(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        vector<int> parent(m * n);
+        vector<int> size(m * n);
+        
+        for(int i = 0; i < m; i++)
+        {
+            for(int j = 0; j < n; j++)
+            {
+                int set_num = i * m + j;
+                make_set(set_num, parent, size);
+            }
+        }
+        
+        for(int i = 0; i < m; i++)
+        {
+            for(int j = 0; j < n; j++)
+            {
+                if(grid[i][j])
+                {
+                    int dx[4] = {-1, 1, 0, 0};
+                    int dy[4] = {0, 0, -1, 1};
+                    
+                    for(int k = 0; k < 4; k++)
+                    {
+                        int x = i + dx[k];
+                        int y = j + dy[k];
+                        int set_num1 = i * m + j;
+                        int set_num2 = x * m + y;
+                        if(isinside(m, n, x, y) && grid[x][y] && find_set(set_num1, parent) != find_set(set_num2, parent))
+                        {
+                            union_sets(set_num1, set_num2, parent, size);
+                        }
+                    }
+                }
+            }
+        }
+        
+        int maxx = INT_MIN;
+        
+        for(int i = 0; i < m; i++)
+        {
+            for(int j = 0; j < n; j++)
+            {
+                if(!grid[i][j])
+                {
+                    int dx[4] = {-1, 1, 0, 0};
+                    int dy[4] = {0, 0, -1, 1};
+                    
+                    unordered_set<int> s;
+                    
+                    int test = 1;
+                    
+                    for(int k = 0; k < 4; k++)
+                    {
+                        int x = i + dx[k];
+                        int y = j + dy[k];
+                        int set_num1 = i * m + j;
+                        int set_num2 = x * m + y;
+                        if(isinside(m, n, x, y) && grid[x][y])
+                        {
+                            int rep = find_set(set_num2, parent);
+                        
+                            if(s.count(rep) == 0)
+                            {
+                                s.insert(rep);
+                                test += size[rep];
+                            }
+                        }
+                    }
+                    
+                    maxx = max(maxx, test);
+                }
+            }
+        }
+        
+        return maxx == INT_MIN ? m * n : maxx;
     }
 };
 ```
