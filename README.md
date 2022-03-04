@@ -1058,6 +1058,680 @@ public:
 };
 ```
 
+## 21) 560. Subarray Sum Equals K
+
+```cpp
+class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        int n = nums.size();
+        
+        unordered_map<int, int> mp;
+        mp[0] = 1;
+        
+        int ans = 0, sum = 0;
+        
+        for(int i = 0; i < n; i++)
+        {
+            sum += nums[i];
+            ans += mp[sum - k];
+            mp[sum]++;
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 22) 31. Next Permutation
+
+```cpp
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int n = nums.size();
+        
+        int r = n - 1, ind = -1;
+        
+        for(int i = n - 1; i >= 1; i--)
+        {
+            if(nums[i] > nums[i - 1])
+            {
+                ind = i;
+                break;
+            }
+        }
+        
+        if(ind == -1)
+        {
+            reverse(nums.begin(), nums.end());
+            return;
+        }
+        
+        for(int i = n - 1; i >= ind; i--)
+        {
+            if(nums[i] > nums[ind - 1])
+            {
+                swap(nums[i], nums[ind - 1]);
+                break;
+            }
+        }
+        
+        reverse(nums.begin() + ind, nums.end());
+    }
+};
+```
+
+## 23) 791. Custom Sort String
+
+```cpp
+class Solution {
+public:
+    string customSortString(string order, string s) {
+        int n1 = order.size(), n2 = s.size();
+        vector<int> mp(256, 0);
+        
+        for(int i = 0; i < n2; i++)
+        {
+            mp[s[i]]++;
+        }
+        
+        string ans = "";
+        
+        for(int i = 0; i < n1; i++)
+        {
+            while(mp[order[i]])
+            {
+                ans += order[i];
+                mp[order[i]]--;
+            }
+        }
+        
+        for(int i = 0; i < 256; i++)
+        {
+            while(mp[i]--)
+            {
+                ans += (char)(i);
+            }
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 24) 65. Valid Number
+
+```cpp
+class Solution {
+public:
+    bool isNumber(string s) {
+        bool seendigit = false;
+        bool seenexponent = false;
+        bool seendot = false;
+        
+        for(int i = 0; i < s.size(); i++)
+        {
+            char c = s[i];
+            
+            if(isdigit(c))
+            {
+                seendigit = true;
+            }
+            
+            else if(c == '+' || c == '-')
+            {
+                if(i > 0 && s[i - 1] != 'e' && s[i - 1] != 'E')
+                {
+                    return false;
+                }
+            }
+            
+            else if(c == 'e' || c == 'E')
+            {
+                if(seenexponent || !seendigit)
+                {
+                    return false;
+                }
+                
+                else
+                {
+                    seenexponent = true;
+                    seendigit = false;
+                }
+            }
+            
+            else if(c == '.')
+            {
+                if(seendot || seenexponent)
+                {
+                    return false;
+                }
+                
+                seendot = true;
+            }
+            
+            else
+            {
+                return false;
+            }
+        }
+        
+        return seendigit;
+    }
+};
+```
+
+## 25) 543. Diameter of Binary Tree
+
+```cpp
+class Solution {
+public:
+    int helper(TreeNode* root, int& ans)
+    {
+        if(!root)
+        {
+            return 0;
+        }
+        
+        int lpath = helper(root->left, ans);
+        int rpath = helper(root->right, ans);
+        
+        ans = max(ans, lpath + rpath);
+        
+        return max(lpath, rpath) + 1;
+    }
+    
+    int diameterOfBinaryTree(TreeNode* root) {
+        if(!root)
+        {
+            return 0;
+        }
+        
+        int ans = 0;
+        
+        helper(root, ans);
+        
+        return ans;
+    }
+};
+```
+
+## 26) 347. Top K Frequent Elements
+
+```cpp
+
+```
+
+## 27) 249. Group Shifted Strings
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> groupStrings(vector<string>& strings) {
+        int n = strings.size();
+        
+        unordered_map<string, vector<string>> mp;
+        
+        for(string s : strings)
+        {
+            string hash = "";
+            
+            int sz = s.size(), diff = (s[0] == 'a') ? 0 : 'z' - s[0] + 1;
+            
+            for(int i = 0; i < sz; i++)
+            {
+                hash += (s[i] + (diff)) % 26 + 'a';
+            }
+            
+            mp[hash].push_back(s);
+        }
+        
+        vector<vector<string>> ans;
+        
+        for(auto it : mp)
+        {
+            ans.push_back(it.second);
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 28) 721. Accounts Merge
+
+```cpp
+class Solution {
+public:
+    void dfs(unordered_map<string, vector<string>>& adjlist, unordered_set<string>& visited, string& u, vector<string>& path)
+    {
+        visited.insert(u);
+        path.push_back(u);
+        
+        for(string& v : adjlist[u])
+        {
+            if(visited.count(v) == 0)
+            {
+                dfs(adjlist, visited, v, path);
+            }
+        }
+    }
+    
+    vector<vector<string>> accountsMerge(vector<vector<string>>& accounts) {
+        int n = accounts.size();
+        
+        unordered_map<string, vector<string>> adjlist;
+        unordered_set<string> visited;
+        
+        for(vector<string>& account : accounts)
+        {
+            int sz = account.size();
+            
+            for(int i = 2; i < sz; i++)
+            {
+                adjlist[account[1]].push_back(account[i]);
+                adjlist[account[i]].push_back(account[1]);
+            }
+        }
+        
+        vector<vector<string>> ans;
+        
+        for(vector<string>& account : accounts)
+        {
+            if(visited.count(account[1]) == 0)
+            {
+                vector<string> mergedaccount;
+                dfs(adjlist, visited, account[1], mergedaccount);
+                sort(mergedaccount.begin(), mergedaccount.end());
+                mergedaccount.insert(mergedaccount.begin(), account[0]);
+                ans.push_back(mergedaccount);
+            }
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 29) 670. Maximum Swap
+
+```cpp
+class Solution {
+public:
+    int maximumSwap(int num) {
+        string s = to_string(num);
+        
+        int n = s.size();
+        
+        unordered_map<int, int> mp;
+        
+        for(int i = 0; i < n; i++)
+        {
+            mp[s[i] - '0'] = i;
+        }
+        
+        for(int i = 0; i < n; i++)
+        {
+            for(int j = 9; j > s[i] - '0'; j--)
+            {
+                if(mp[j] > i)
+                {
+                    swap(s[i], s[mp[j]]);
+                    return stoi(s);
+                }
+            }
+        }
+        
+        return stoi(s);
+    }
+};
+```
+
+## 30) 636. Exclusive Time of Functions
+
+```cpp
+class Solution {
+private:
+    struct Log
+    {
+        int id;
+        string type;
+        int ts;
+    };
+    
+    Log get_log_from_string(string& s)
+    {
+        Log log;
+        char type[256];
+        sscanf(s.c_str(), "%d:%[^:]:%d", &log.id, type, &log.ts);
+        log.type = string(type);
+        return log;
+    }
+    
+public:
+    vector<int> exclusiveTime(int n, vector<string>& logs) {
+        int sz = logs.size();
+        
+        vector<int> ans(n, 0);
+        
+        stack<Log> st;
+        
+        for(string& log : logs)
+        {
+            Log item = get_log_from_string(log);
+            
+            if(item.type == "start")
+            {
+                st.push(item);
+            }
+            
+            else
+            {
+                int time = item.ts - st.top().ts + 1;
+                ans[st.top().id] += time;
+                st.pop();
+                if(!st.empty())
+                {
+                    ans[st.top().id] -= time;
+                }
+            }
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 31) 498. Diagonal Traverse
+
+```cpp
+class Solution {
+public:
+    vector<int> findDiagonalOrder(vector<vector<int>>& mat) {
+        int m = mat.size();
+        int n = mat[0].size();
+        
+        vector<int> ans;
+        
+        bool flag = false;
+        
+        for(int i = 1; i <= m + n - 1; i++)
+        {
+            int x, y;
+            
+            if(!flag)
+            {
+                if(i >= 1 && i <= m)
+                {
+                    x = i - 1;
+                    y = 0;
+                }
+                
+                else
+                {
+                    x = m - 1;
+                    y = i - m;
+                }
+                
+                while(x >= 0 && x < m && y >= 0 && y < n)
+                {
+                    ans.push_back(mat[x--][y++]);
+                }
+            }
+            
+            else
+            {
+                if(i >= 1 && i <= n)
+                {
+                    x = 0;
+                    y = i - 1;
+                }
+                
+                else
+                {
+                    x = i - n;
+                    y = n - 1;
+                }
+                
+                while(x >= 0 && x < m && y >= 0 && y < n)
+                {
+                    ans.push_back(mat[x++][y--]);
+                }
+            }
+            
+            flag = !flag;
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 32) 317. Shortest Distance from All Buildings
+
+```cpp
+```
+
+## 33) 1091. Shortest Path in Binary Matrix
+
+```cpp
+```
+
+## 34) 162. Find Peak Element
+
+```cpp
+```
+
+## 35) 301. Remove Invalid Parentheses
+
+```cpp
+class Solution {
+public:
+    void dfs(string& s, int idx, int op, int cl, unordered_set<string>& ans, string path, int& len)
+    {
+        if(idx == s.size())
+        {
+            if(op == cl)
+            {
+                if(path.size() > len)
+                {
+                    ans.clear();
+                    ans.insert(path);
+                    len = path.size();
+                }
+                
+                else if(path.size() == len)
+                {
+                    ans.insert(path);
+                }
+            }
+            
+            return;
+        }
+        
+        if(s[idx] != '(' && s[idx] != ')')
+        {
+            dfs(s, idx + 1, op, cl, ans, path + s[idx], len);
+        }
+        
+        else
+        {
+            if(s[idx] == '(')
+            {
+                dfs(s, idx + 1, op + 1, cl, ans, path + '(', len);
+                dfs(s, idx + 1, op, cl, ans, path, len);
+            }
+            
+            else
+            {
+                if(op >= cl + 1)
+                {
+                    dfs(s, idx + 1, op, cl + 1, ans, path + ')', len);
+                }
+                
+                dfs(s, idx + 1, op, cl, ans, path, len);
+            }
+        }
+    }
+    
+    vector<string> removeInvalidParentheses(string s) {
+        unordered_set<string> ans;
+        string path = "";
+        int len = 0;
+        
+        dfs(s, 0, 0, 0, ans, path, len);
+        
+        return vector<string>(ans.begin(), ans.end());
+    }
+};
+```
+
+## 36) 138. Copy List with Random Pointer
+
+```cpp
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if(!head)
+        {
+            return NULL;
+        }
+        
+        Node* curr = head;
+        
+        while(curr)
+        {
+            Node* next = curr->next;
+            curr->next = new Node(curr->val);
+            curr->next->next = next;
+            curr = next;
+        }
+        
+        Node* nw = head->next;
+        
+        Node* curr1 = head;
+        Node* curr2 = nw;
+        
+        while(curr1)
+        {
+            curr1->next->random = curr1->random ? curr1->random->next : NULL;
+            curr1 = curr1->next->next;
+        }
+        
+        curr1 = head;
+        
+        while(curr1)
+        {
+            curr1->next = curr2->next;
+            curr2->next = curr1->next ? curr1->next->next : NULL;
+            curr1 = curr1->next;
+            curr2 = curr2->next;
+        }
+        
+        return nw;
+        
+    }
+};
+```
+
+## 37) 56. Merge Intervals
+
+``` cpp
+class Solution {
+public:
+    
+    static bool comp(vector<int>& a, vector<int>& b)
+    {
+        return a[0] < b[0];
+    }
+    
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        int n = intervals.size();
+        
+        vector<vector<int>> ans;
+        
+        sort(intervals.begin(), intervals.end(), comp);
+        
+        for(int i = 0; i < n; i++)
+        {
+            if(ans.empty() || ans.back()[1] < intervals[i][0])
+            {
+                ans.push_back(intervals[i]);
+            }
+            
+            else
+            {
+                ans.back()[1] = max(ans.back()[1], intervals[i][1]);
+            }
+        }
+        
+        return ans;
+    }
+};
+```
+
+## 38) 523. Continuous Subarray Sum
+
+```cpp
+```
+
+## 39) 125. Valid Palindrome
+
+```cpp
+class Solution {
+public:
+    bool isPalindrome(string s) {
+        int n = s.size();
+        
+        int l = 0, r = s.size();
+        
+        while(l <= r)
+        {
+            if(!isalnum(s[l]))
+            {
+                l++;
+                continue;
+            }
+            
+            if(!isalnum(s[r]))
+            {
+                r--;
+                continue;
+            }
+            
+            if(tolower(s[l]) != tolower(s[r]))
+            {
+                return false;
+            }
+            
+            else
+            {
+                l++;
+                r--;
+            }
+        }
+        
+        return true;
+    }
+};
+```
+
+## 40) 415. Add Strings
+
+```cpp
+```
+
+## 41) 282. Expression Add Operators
+
+```cpp
+```
+
+## 42) 1011. Capacity To Ship Packages Within D Days
+
+```cpp
+```
+
 ## ) 2. Add Two Numbers
 
 1. We will build the answer node by node.
@@ -1091,48 +1765,6 @@ public:
     
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
         return add(l1, l2, 0);
-    }
-};
-```
-
-## ) 56. Merge Intervals
-
-1. Sort the intervals by start time.
-
-2. We will start from the first interval, that is the interval with the minimum start time and start adding intervals to our final set of answer.
-
-3. If the current interval's start time is lesser than the last added interval's end time, we update the last added interval's end time in the answer array. Else we add the interval to the answer.
-
-``` cpp
-class Solution {
-public:
-    
-    static bool comp(vector<int>& a, vector<int>& b)
-    {
-        return a[0] < b[0];
-    }
-    
-    vector<vector<int>> merge(vector<vector<int>>& intervals) {
-        int n = intervals.size();
-        
-        vector<vector<int>> ans;
-        
-        sort(intervals.begin(), intervals.end(), comp);
-        
-        for(int i = 0; i < n; i++)
-        {
-            if(ans.empty() || ans.back()[1] < intervals[i][0])
-            {
-                ans.push_back(intervals[i]);
-            }
-            
-            else
-            {
-                ans.back()[1] = max(ans.back()[1], intervals[i][1]);
-            }
-        }
-        
-        return ans;
     }
 };
 ```
