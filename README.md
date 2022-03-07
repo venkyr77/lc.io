@@ -717,7 +717,77 @@ public:
 ## 14) 227. Basic Calculator II
 
 ```cpp
-
+class Solution {
+public:
+    int calculate(string s) {
+        int n = s.size(), ans = 0;
+        
+        if(!n)
+        {
+            return 0;
+        }
+        
+        stack<int> st;
+        
+        char op = '+';
+        
+        int curr = 0;
+        
+        for(int i = 0; i <= n; i++)
+        {
+            if(iswspace(s[i]))
+            {
+                continue;
+            }
+            
+            if(i == n || !isdigit(s[i]))
+            {
+                if(op == '+')
+                {
+                    st.push(curr);
+                }
+                
+                else if(op == '-')
+                {
+                    st.push(-curr);
+                }
+                
+                else 
+                {
+                    int tp = st.top();
+                    st.pop();
+                    
+                    if(op == '*')
+                    {
+                        st.push(tp * curr);   
+                    }
+                    
+                    if(op == '/')
+                    {
+                        st.push(tp / curr);   
+                    }
+                }
+                
+                op = s[i];
+                curr = 0;
+            }
+            
+            else
+            {
+                curr *= 10;
+                curr += s[i] - '0';   
+            }
+        }
+        
+        while(!st.empty())
+        {
+            ans += st.top();
+            st.pop();
+        }
+        
+        return ans;
+    }
+};
 ```
 
 ## 15) 215. Kth Largest Element in an Array
@@ -1511,16 +1581,159 @@ public:
 ## 32) 317. Shortest Distance from All Buildings
 
 ```cpp
+class Solution {
+private:
+    int m, n;
+    int dx[4] = {-1, 1, 0, 0};
+    int dy[4] = {0, 0, -1, 1};
+    
+public:
+    bool isinside(int i, int j)
+    {
+        return (i >= 0 && i < m && j >= 0 && j < n);
+    }
+    
+    int bfs(vector<vector<int>>& grid, vector<vector<int>>& tot)
+    {
+        int walk = 0;
+        int ans;
+        
+        for(int i = 0; i < m; i++)
+        {
+            for(int j = 0; j < n; j++)
+            {
+                if(grid[i][j] == 1)
+                {
+                    int currmin = INT_MAX;
+                    auto dist = grid;
+                    queue<pair<int, int>> q;
+                    q.push({i, j});
+                    
+                    while(!q.empty())
+                    {
+                        pair<int, int> tp = q.front();
+                        q.pop();
+
+                        int ui = tp.first;
+                        int uj = tp.second;
+
+                        for(int d = 0; d < 4; d++)
+                        {
+                            int x = ui + dx[d];
+                            int y = uj + dy[d];
+
+                            if(isinside(x, y) && grid[x][y] == walk)
+                            {
+                                grid[x][y]--;
+                                dist[x][y] = dist[ui][uj] + 1;
+                                tot[x][y] += dist[x][y] - 1;
+                                currmin = min(currmin, tot[x][y]);
+                                q.push({x, y});
+                            }
+                        }
+                    }
+                    
+                    ans = currmin;
+                    walk--;
+                }
+            }
+        }
+        
+        return ans == INT_MAX ? -1 : ans;
+    }
+    
+    int shortestDistance(vector<vector<int>>& grid) {
+        m = grid.size();
+        n = grid[0].size();
+        
+        vector<vector<int>> tot = vector<vector<int>>(m, vector<int>(n, 0));
+        
+        return bfs(grid, tot);
+    }
+};
 ```
 
 ## 33) 1091. Shortest Path in Binary Matrix
 
 ```cpp
+class Solution {
+private:
+    vector<pair<int, int>> dirs{{0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}};
+public:
+    bool is_inside(int& i, int& j, int& m, int& n)
+    {
+        return i >= 0 && j >= 0 && i < m && j < n;
+    }
+    
+    int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        if(grid[0][0])
+        {
+            return -1;
+        }
+        
+        queue<vector<int>> q;
+        q.push({0, 0, 1});
+        grid[0][0] = 1;
+        
+        while(!q.empty())
+        {
+            vector<int> tp = q.front();
+            q.pop();
+            
+            if(tp[0] == m - 1 && tp[1] == n - 1)
+            {
+                return tp[2];
+            }
+            
+            for(int i = 0; i < 8; i++)
+            {
+                int x = tp[0] + dirs[i].first;
+                int y = tp[1] + dirs[i].second;
+                
+                if(is_inside(x, y, m, n) && grid[x][y] == 0)
+                {
+                    q.push({x, y, tp[2] + 1});
+                    grid[x][y] = 1;
+                }
+            }
+        }
+        
+        return -1;
+    }
+};
 ```
 
 ## 34) 162. Find Peak Element
 
 ```cpp
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        int n = nums.size();
+        
+        int l = -1, r = n;
+        
+        while(r - l > 1)
+        {
+            int mid = (l + r) / 2;
+            
+            if(mid == 0 || nums[mid] > nums[mid - 1])
+            {
+                l = mid;
+            }
+            
+            else
+            {
+                r = mid;
+            }
+        }
+        
+        return l;
+    }
+};
 ```
 
 ## 35) 301. Remove Invalid Parentheses
@@ -1674,6 +1887,39 @@ public:
 ## 38) 523. Continuous Subarray Sum
 
 ```cpp
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        int n = nums.size();
+        
+        unordered_map<int, int> mp;
+        
+        mp[0] = -1;
+        
+        int curr = 0;
+        
+        for(int i = 0; i < n; i++)
+        {
+            curr += nums[i];
+            curr %= k;
+            
+            if(mp.count(curr))
+            {
+                if(i - mp[curr] > 1)
+                {
+                    return true;
+                }
+            }
+            
+            else
+            {
+                mp[curr] = i;
+            }
+        }
+        
+        return false;
+    }
+};
 ```
 
 ## 39) 125. Valid Palindrome
@@ -1720,16 +1966,156 @@ public:
 ## 40) 415. Add Strings
 
 ```cpp
+class Solution {
+public:
+    string addStrings(string num1, string num2) {
+        int n = num1.size();
+        int m = num2.size();
+        
+        string ans = "";
+        
+        reverse(num1.begin(), num1.end());
+        reverse(num2.begin(), num2.end());
+        
+        int i = 0;
+        int j = 0;
+        int carry = 0;
+        
+        while(i < n && j < m)
+        {
+            int curr = num1[i] - '0' + num2[j] - '0' + carry;
+            ans += (curr % 10) + '0';
+            carry = curr / 10;
+            i++;
+            j++;
+        }
+        
+        while(i < n)
+        {
+            int curr = num1[i] - '0' + carry;
+            ans += (curr % 10) + '0';
+            carry = curr / 10;
+            i++;
+        }
+        
+        while(j < m)
+        {
+            int curr = num2[j] - '0' + carry;
+            ans += (curr % 10) + '0';
+            carry = curr / 10;
+            j++;
+        }
+        
+        if(carry)
+        {
+            ans += "1";
+        }
+        
+        reverse(ans.begin(), ans.end());
+        
+        return ans;
+    }
+};
 ```
 
 ## 41) 282. Expression Add Operators
 
 ```cpp
+class Solution {
+public:
+    vector<string> addOperators(string num, int target)
+    {
+        vector<string> res;
+        dfs(num, target, 0, 0, 0, "", res);
+        return res;
+    }
+    
+    void dfs(string& s, int target, int pos, long cv, long pv, string r, vector<string>& res) {
+        if (pos == s.size() && cv == target)
+        {
+            res.push_back(r);
+            return;
+        }
+        
+        for (int i = 1; i <= s.size() - pos; i++)
+        {
+            string t = s.substr(pos, i);
+            
+            if (i > 1 && t[0] == '0') continue;
+            
+            long n = stol(t);
+            
+            if (pos == 0)
+            {
+                dfs(s, target, i, n, n, t, res);
+                continue;
+            }
+            
+            dfs(s, target, pos+i, cv+n, n, r+"+"+t, res);
+            dfs(s, target, pos+i, cv-n, -n, r+"-"+t, res);
+            dfs(s, target, pos+i, cv-pv+pv*n, pv*n, r+"*"+t, res);
+        }
+    }
+};
 ```
 
 ## 42) 1011. Capacity To Ship Packages Within D Days
 
 ```cpp
+class Solution {
+public:
+    bool isposs(vector<int>& W, int C, int D)
+    {   
+        int d = 1, sum = 0, n = W.size();
+        
+        for(int i = 0; i < n; i++)
+        {
+            if(sum + W[i] > C)
+            {
+                if(W[i] > C)
+                {
+                    return false;
+                }
+                
+                sum = 0;
+                d++;
+            }
+            
+            sum += W[i];
+        }
+        
+        return d <= D;
+    }
+    
+    int shipWithinDays(vector<int>& W, int D) {
+        int l = 0;
+        int r = 0;
+        
+        for(int i : W)
+        {
+            r += i;
+        }
+        
+        r++;
+        
+        while(r - l > 1)
+        {
+            int mid = (l + r) / 2;
+            
+            if(isposs(W, mid, D))
+            {
+                r = mid;
+            }
+            
+            else
+            {
+                l = mid;
+            }
+        }
+        
+        return r;
+    }
+};
 ```
 
 ## ) 2. Add Two Numbers
